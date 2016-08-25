@@ -12,10 +12,15 @@ namespace spaceShooter
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        Player player;
+        const int playerNumLives = 3;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            IsMouseVisible = true;
         }
 
         /// <summary>
@@ -40,7 +45,8 @@ namespace spaceShooter
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+            //Load in the player character
+            player = new spaceShooter.Player(Content.Load<Texture2D>(@"sprites\playerShip1_red"), new Vector2(graphics.PreferredBackBufferWidth/2, graphics.PreferredBackBufferHeight/2), playerNumLives);
         }
 
         /// <summary>
@@ -62,7 +68,8 @@ namespace spaceShooter
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
+            MouseState mouse = Mouse.GetState();
+            player.Update(gameTime, mouse);
 
             base.Update(gameTime);
         }
@@ -75,7 +82,9 @@ namespace spaceShooter
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
+            spriteBatch.Begin();
+            player.Draw(spriteBatch);
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }
