@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace spaceShooter
 {
@@ -15,8 +17,14 @@ namespace spaceShooter
         const int WINDOW_HEIGHT = 600;
         const int WINDOW_WIDTH = WINDOW_HEIGHT/9*16;
 
+        const int MAX_PLAYER_SHOTS = 25;
+
         Player player;
+        List<Weapon> shots = new List<Weapon>();
         const int playerNumLives = 3;
+
+        int playerShotDelay = 0;
+        bool previousButtonStateY = false;
 
         public Game1()
         {
@@ -77,12 +85,45 @@ namespace spaceShooter
             MouseState mouse = Mouse.GetState();
             GamePadState gamepad = GamePad.GetState(PlayerIndex.One);
             //Ensures gamepad connected, otherwise defaults to mouse controls.
-            if(!gamepad.IsConnected)
+            if (!gamepad.IsConnected)
             {
                 player.Update(gameTime, mouse, new Vector2(WINDOW_WIDTH, WINDOW_HEIGHT));
             } else
             {
+                playerShotDelay -= gameTime.ElapsedGameTime.Milliseconds;
                 player.Update(gameTime, gamepad, new Vector2(WINDOW_WIDTH, WINDOW_HEIGHT));
+                if (gamepad.IsButtonDown(Buttons.A))
+                {
+                    
+                    //Limit the number of lasers on the screen
+                    if(shots.Count < MAX_PLAYER_SHOTS && playerShotDelay <= 0)
+                    {
+                        shots.Add(player.Shoot(gameTime));
+                        playerShotDelay = 125;
+                    }
+                    else
+                    {
+
+                    }
+
+                    foreach (Weapon bullet in shots)
+                    {
+                        bullet.Sprite = Content.Load<Texture2D>(@"sprites\laserBlue03");
+                    }
+                }
+                foreach (Weapon bullet in shots.ToList())
+                {
+                    bullet.Update(gameTime, new Vector2(WINDOW_WIDTH, WINDOW_HEIGHT));
+                    if(bullet.Location.X < 0 || bullet.Location.Y < 0 || bullet.Location.X > WINDOW_WIDTH || bullet.Location.Y > WINDOW_HEIGHT)
+                    {
+                        shots.Remove(bullet);
+                    }
+                }
+                if (gamepad.IsButtonDown(Buttons.Y) && playerShotDelay <=0)
+                {
+                    player.SelectWeapon();
+                    playerShotDelay = 125;
+                }
             }
             
 
@@ -99,6 +140,10 @@ namespace spaceShooter
 
             spriteBatch.Begin();
             player.Draw(spriteBatch);
+            foreach(Weapon bullet in shots)
+            {
+                bullet.Draw(spriteBatch);
+            }
             spriteBatch.End();
 
             base.Draw(gameTime);

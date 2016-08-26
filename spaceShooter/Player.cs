@@ -25,6 +25,8 @@ namespace spaceShooter
         const int thumbstickDeflectionAmount = 20;
         Vector2 velocity = Vector2.Zero;
 
+        int selectedWeapon = 0;
+
         //Drawing Support
         Texture2D sprite;
         Rectangle drawRectangle;
@@ -118,6 +120,28 @@ namespace spaceShooter
             //move based on velocity
             drawRectangle.X += (int)(velocity.X * gameTime.ElapsedGameTime.Milliseconds);
             drawRectangle.Y += (int)(velocity.Y * gameTime.ElapsedGameTime.Milliseconds);
+        }
+
+        /// <summary>
+        /// Fires a new projectile
+        /// </summary>
+        /// <param name="gameTime"></param>
+        public Weapon Shoot(GameTime gameTime)
+        {
+            Weapon shot = new Weapon(selectedWeapon, new Vector2(drawRectangle.X+sprite.Width, drawRectangle.Y+sprite.Height/2), 6);
+            return shot;
+        }
+
+       public void SelectWeapon()
+        {
+            if (selectedWeapon <= 4)
+            {
+                selectedWeapon++;
+            }
+            else
+            {
+                selectedWeapon = 0;
+            }
         }
         #endregion
 
