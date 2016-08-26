@@ -22,6 +22,7 @@ namespace spaceShooter
         bool active = true;
         int lives;
         const int playerSpeed = 6;
+        const int thumbstickDeflectionAmount = 20;
         Vector2 velocity = Vector2.Zero;
 
         //Drawing Support
@@ -84,8 +85,35 @@ namespace spaceShooter
         /// Updates the player position
         /// </summary>
         /// <param name="gameTime">Game Time</param>
-        /// <param name="mouse">Mouse State</param>
-        public void Update(GameTime gameTime, MouseState mouse)
+        /// <param name="gamepad">Gamepad State</param>
+        public void Update(GameTime gameTime, GamePadState gamepad, Vector2 window)
+        {
+            //move based on velocity
+            //drawRectangle.X += (int)(velocity.X * gameTime.ElapsedGameTime.Milliseconds);
+            //drawRectangle.Y += (int)(velocity.Y * gameTime.ElapsedGameTime.Milliseconds);
+            drawRectangle.X += (int)(gamepad.ThumbSticks.Left.X * thumbstickDeflectionAmount);
+            drawRectangle.Y -= (int)(gamepad.ThumbSticks.Left.Y * thumbstickDeflectionAmount);
+
+            //Clamp to window
+            if (drawRectangle.Left < 0)
+            {
+                drawRectangle.X = 0;
+            }
+            if (drawRectangle.Right > window.X)
+            {
+                drawRectangle.X = (int)window.X - drawRectangle.Width;
+            }
+            if (drawRectangle.Top < 0)
+            {
+                drawRectangle.Y = 0;
+            }
+            if (drawRectangle.Bottom > window.Y)
+            {
+                drawRectangle.Y = (int)window.Y - drawRectangle.Height;
+            }
+        }
+
+        public void Update(GameTime gameTime, MouseState mouse, Vector2 window)
         {
             //move based on velocity
             drawRectangle.X += (int)(velocity.X * gameTime.ElapsedGameTime.Milliseconds);

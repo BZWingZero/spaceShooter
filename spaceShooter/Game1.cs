@@ -12,6 +12,9 @@ namespace spaceShooter
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        const int WINDOW_HEIGHT = 600;
+        const int WINDOW_WIDTH = WINDOW_HEIGHT/9*16;
+
         Player player;
         const int playerNumLives = 3;
 
@@ -19,6 +22,9 @@ namespace spaceShooter
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            graphics.PreferredBackBufferHeight = WINDOW_HEIGHT;
+            graphics.PreferredBackBufferWidth = WINDOW_WIDTH;
 
             IsMouseVisible = true;
         }
@@ -46,7 +52,7 @@ namespace spaceShooter
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             //Load in the player character
-            player = new spaceShooter.Player(Content.Load<Texture2D>(@"sprites\playerShip1_red"), new Vector2(graphics.PreferredBackBufferWidth/2, graphics.PreferredBackBufferHeight/2), playerNumLives);
+            player = new spaceShooter.Player(Content.Load<Texture2D>(@"sprites\playerShip1_red"), new Vector2(graphics.PreferredBackBufferWidth/4, graphics.PreferredBackBufferHeight/2), playerNumLives);
         }
 
         /// <summary>
@@ -69,7 +75,16 @@ namespace spaceShooter
                 Exit();
 
             MouseState mouse = Mouse.GetState();
-            player.Update(gameTime, mouse);
+            GamePadState gamepad = GamePad.GetState(PlayerIndex.One);
+            //Ensures gamepad connected, otherwise defaults to mouse controls.
+            if(!gamepad.IsConnected)
+            {
+                player.Update(gameTime, mouse, new Vector2(WINDOW_WIDTH, WINDOW_HEIGHT));
+            } else
+            {
+                player.Update(gameTime, gamepad, new Vector2(WINDOW_WIDTH, WINDOW_HEIGHT));
+            }
+            
 
             base.Update(gameTime);
         }
